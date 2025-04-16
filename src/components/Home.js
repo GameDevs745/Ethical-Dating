@@ -27,6 +27,15 @@ const Home = () => {
 >
   Edit Profile
 </Button>
+<Button
+  component={Link}
+  to="/swipe"
+  variant="contained"
+  color="secondary"
+  sx={{ mt: 2, ml: 2 }}
+>
+  Find Matches
+</Button>
     </Container>
   );
 };

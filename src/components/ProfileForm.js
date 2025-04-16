@@ -10,6 +10,9 @@ const ProfileForm = () => {
   const [age, setAge] = useState('');
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(true);
+  const [gender, setGender] = useState('');
+const [preference, setPreference] = useState('');
+const [photoURL, setPhotoURL] = useState('');
 
   // Load existing profile data
   useEffect(() => {
@@ -20,6 +23,9 @@ const ProfileForm = () => {
         setName(docSnap.data().name || '');
         setAge(docSnap.data().age || '');
         setBio(docSnap.data().bio || '');
+         setGender(docSnap.data().gender || '');
+  setPreference(docSnap.data().preference || '');
+  setPhotoURL(docSnap.data().photoURL || '');
       }
       setLoading(false);
     };
@@ -34,6 +40,10 @@ const ProfileForm = () => {
       bio,
       email: currentUser.email,
       uid: currentUser.uid,
+      gender,
+  preference,
+  photoURL,
+      createdAt: new Date(),
     });
     alert('Profile saved!');
   };
@@ -70,6 +80,39 @@ const ProfileForm = () => {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
+          <TextField
+  select
+  fullWidth
+  label="Gender"
+  margin="normal"
+  value={gender}
+  onChange={(e) => setGender(e.target.value)}
+>
+  <MenuItem value="male">Male</MenuItem>
+  <MenuItem value="female">Female</MenuItem>
+  <MenuItem value="other">Other</MenuItem>
+</TextField>
+
+<TextField
+  select
+  fullWidth
+  label="Interested In"
+  margin="normal"
+  value={preference}
+  onChange={(e) => setPreference(e.target.value)}
+>
+  <MenuItem value="male">Male</MenuItem>
+  <MenuItem value="female">Female</MenuItem>
+  <MenuItem value="both">Both</MenuItem>
+</TextField>
+
+<TextField
+  fullWidth
+  label="Profile Picture URL"
+  margin="normal"
+  value={photoURL}
+  onChange={(e) => setPhotoURL(e.target.value)}
+/>
           <Button type="submit" variant="contained" sx={{ mt: 2 }}>
             Save Profile
           </Button>
