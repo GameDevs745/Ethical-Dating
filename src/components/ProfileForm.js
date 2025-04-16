@@ -3,6 +3,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { Button, TextField, Container, Typography, Box, Avatar } from '@mui/material';
+import { MenuItem } from '@mui/material';
 
 const ProfileForm = () => {
   const { currentUser } = useAuth();
