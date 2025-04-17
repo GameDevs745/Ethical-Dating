@@ -1,5 +1,6 @@
 // src/App.js
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ErrorBoundary } from './components/errorBoundary';
 import { AuthProvider } from './contexts/AuthContext'; // ADD THIS IMPORT
 import Home from './components/Home';
 import Login from './components/Login';
@@ -9,9 +10,9 @@ import ProfileForm from './components/ProfileForm';
 import SwipePage from './components/SwipePage';
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider> {/* ADD THIS WRAPPER */}
       <BrowserRouter>
-
 <Routes>
   <Route path="/" element={
     <ProtectedRoute>
@@ -33,6 +34,7 @@ function App() {
 </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

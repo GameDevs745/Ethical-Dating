@@ -14,8 +14,8 @@ const handleLogout = () => {
   return (
     <Container>
       <Typography variant="h4" sx={{ mt: 4 }}>
-        Welcome, {currentUser?.email}!
-      </Typography>
+  Welcome, {user?.name || user?.email}!
+</Typography>
       <Button variant="contained" onClick={handleLogout} sx={{ mt: 2 }}>
         Logout
       </Button>

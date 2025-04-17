@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dbReady, setDbReady] = useState(false);
+  const [error, setError] = useState(null);
 
   // Initialize database and auth state
   useEffect(() => {
@@ -44,7 +45,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    try {
+  try {
+    if (!dbReady) throw new Error('Database not ready')
       // Create/authenticate user
       const authUser = await fakeAuth.login(email, password);
       
@@ -62,11 +64,11 @@ export function AuthProvider({ children }) {
       setUser(dbUser);
       
       return dbUser;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
+   } catch (error) {
+    setError(error.message);
+    throw error;
+  }
+};
 
   const logout = () => {
     fakeAuth.logout();
@@ -80,7 +82,9 @@ export function AuthProvider({ children }) {
     dbReady,
     login,
     logout,
-    getCurrentUser: () => fakeAuth.getCurrentUser()
+    getCurrentUser: () => fakeAuth.getCurrentUser(),
+    error,
+    clearError: () => setError(null)
   };
 
   return (

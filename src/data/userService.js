@@ -1,3 +1,5 @@
+import { initDB } from './localDatabase';
+
 export const userService = {
   async saveUser(user) {
     const db = await initDB();

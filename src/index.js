@@ -15,7 +15,14 @@ initDB()
       </React.StrictMode>
     );
   })
-  .catch(error => console.error('DB initialization failed:', error));
+  .catch(error => {
+    root.render(
+      <div>
+        <h1>Initialization Failed</h1>
+        <p>{error.message}</p>
+      </div>
+    );
+  });
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

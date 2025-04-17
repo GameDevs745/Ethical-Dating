@@ -11,6 +11,10 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+  if (password.length < 6) {
+    setError('Password must be at least 6 characters');
+    return;
+  }
   try {
     await fakeAuth.login(email, password); // Use same method for signup
     navigate('/');

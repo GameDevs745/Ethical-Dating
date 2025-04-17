@@ -1,3 +1,5 @@
+
+import { userService } from './userService';
 export const seedInitialUsers = async () => {
   const existing = await userService.getAllUsers();
   if (existing.length === 0) {
