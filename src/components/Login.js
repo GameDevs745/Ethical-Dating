@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Import signInWithEmailAndPassword
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
-import { auth } from '../firebase'; // Import the pre-initialized `auth`
-import { useData } from '../contexts/DataContext';
+import { fakeAuth } from '../data/authService';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,16 +9,15 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Use the imported `auth` directly
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    await fakeAuth.login(email, password);
+    navigate('/');
+  } catch (err) {
+    setError('Invalid credentials');
+  }
+};
 
   return (
     <Container maxWidth="xs">

@@ -25,7 +25,9 @@ export function DataProvider({ children }) {
     setCurrentUser(user);
   };
 
-  const value = { currentUser, dbReady, login, /* other methods */ };
+  const value = { currentUser, dbReady, login: fakeAuth.login,
+  logout: fakeAuth.logout,
+  getCurrentUser: fakeAuth.getCurrentUser };
   
   return (
     <DataContext.Provider value={value}>

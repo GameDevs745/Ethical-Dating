@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth'; // Correct import
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
-import { auth } from '../firebase'; // Import `auth` here
+import { fakeAuth } from '../data/authService'
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -11,14 +10,14 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  e.preventDefault();
+  try {
+    await fakeAuth.login(email, password); // Use same method for signup
+    navigate('/');
+  } catch (err) {
+    setError('Registration failed');
+  }
+};
 
   return (
     <Container maxWidth="xs">

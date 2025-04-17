@@ -1,14 +1,13 @@
 import { Button, Typography, Container } from '@mui/material';
-import { signOut } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
   const { currentUser } = useAuth();
 
-  const handleLogout = async () => {
-    await signOut(auth); // Use imported auth
-  };
+const handleLogout = () => {
+  fakeAuth.logout();
+};
 
   return (
     <Container>
