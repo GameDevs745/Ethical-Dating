@@ -36,6 +36,22 @@ function App() {
     </ProtectedRoute>
   }
 />
+<Route
+            path="/"
+            element={
+              <ProtectedRoute requireProfileComplete>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/swipe"
+            element={
+              <ProtectedRoute requireProfileComplete>
+                <SwipePage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

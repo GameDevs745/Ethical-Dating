@@ -9,12 +9,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    setCurrentUser(user);
+    setLoading(false);
+  }, (error) => {
+    console.error("Auth state error:", error);
+    setLoading(false);
+  });
+  return unsubscribe;
+}, []);
 
   return (
     <AuthContext.Provider value={{ currentUser, loading }}>

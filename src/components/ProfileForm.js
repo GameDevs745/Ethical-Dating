@@ -20,6 +20,7 @@ const [photoURL, setPhotoURL] = useState('');
     const fetchProfile = async () => {
       const docRef = doc(db, 'users', currentUser.uid);
       const docSnap = await getDoc(docRef);
+      
       if (docSnap.exists()) {
         setName(docSnap.data().name || '');
         setAge(docSnap.data().age || '');
@@ -34,7 +35,11 @@ const [photoURL, setPhotoURL] = useState('');
   }, [currentUser]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  if (!gender || !preference) {
+    alert('Please select gender and preference');
+    return;
+  }
     await setDoc(doc(db, 'users', currentUser.uid), {
       name,
       age,
