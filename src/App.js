@@ -11,47 +11,26 @@ function App() {
   return (
     <AuthProvider> {/* ADD THIS WRAPPER */}
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfileForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-  path="/swipe"
-  element={
+
+<Routes>
+  <Route path="/" element={
+    <ProtectedRoute>
+      <Home />
+    </ProtectedRoute>
+  } />
+  <Route path="/login" element={<Login />} />
+  <Route path="/signup" element={<Signup />} />
+  <Route path="/profile" element={
+    <ProtectedRoute>
+      <ProfileForm />
+    </ProtectedRoute>
+  } />
+  <Route path="/swipe" element={
     <ProtectedRoute>
       <SwipePage />
     </ProtectedRoute>
-  }
-/>
-<Route
-            path="/"
-            element={
-              <ProtectedRoute requireProfileComplete>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/swipe"
-            element={
-              <ProtectedRoute requireProfileComplete>
-                <SwipePage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+  } />
+</Routes>
       </BrowserRouter>
     </AuthProvider>
   );

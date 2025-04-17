@@ -1,12 +1,14 @@
 import { Button, Typography, Container } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { fakeAuth } from '../data/authService';
 
 const Home = () => {
   const { currentUser } = useAuth();
 
 const handleLogout = () => {
   fakeAuth.logout();
+  window.location.reload(); // Force state update
 };
 
   return (

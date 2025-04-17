@@ -4,19 +4,18 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { initDB } from './data/localDatabase';
-initDB().then(() => {
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-});
+import { seedInitialUsers } from './data/seedData';
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+initDB()
+  .then(() => seedInitialUsers())
+  .then(() => {
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  })
+  .catch(error => console.error('DB initialization failed:', error));
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

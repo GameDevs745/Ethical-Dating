@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../data/userService';
-import { swipeService } from '../data/swipeService';
+import { swipeService } from '../data/swipeService.js';
 import SwipeCard from './SwipeCard';
 import { Container, Typography, Button, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -24,7 +24,7 @@ const SwipePage = () => {
         
         // Get already swiped users
         const swipes = await swipeService.getSwipesByUser(user.id);
-        const swipedIds = swipes.map(swipe => swipeeId);
+        const swipedIds = swipes.map(swipe => swipe.swipeeId);
 
         const filtered = allUsers.filter(u => 
           u.id !== user.id &&
