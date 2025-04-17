@@ -1,35 +1,35 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase'; // Use pre-initialized auth
+import { fakeAuth } from '../data/authService';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    setCurrentUser(user);
+    const storedUser = fakeAuth.getCurrentUser();
+    if (storedUser) fakeAuth.currentUser = storedUser;
+    setUser(storedUser);
     setLoading(false);
-  }, (error) => {
-    console.error("Auth state error:", error);
-    setLoading(false);
-  });
-  return unsubscribe;
-}, []);
+  }, []);
+
+  const login = async (email, password) => {
+    const user = await fakeAuth.login(email, password);
+    setUser(user);
+    return user;
+  };
+
+  const logout = () => {
+    fakeAuth.logout();
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {!loading && children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

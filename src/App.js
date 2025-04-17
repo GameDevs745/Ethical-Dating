@@ -1,5 +1,4 @@
 // src/App.js
-import './firebase';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext'; // ADD THIS IMPORT
 import Home from './components/Home';

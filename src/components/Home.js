@@ -1,7 +1,6 @@
 import { Button, Typography, Container } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
-import { auth } from '../firebase'; // Import pre-initialized auth
 import { Link } from 'react-router-dom';
 
 const Home = () => {

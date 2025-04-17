@@ -4,30 +4,22 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
-const ProtectedRoute = ({ children, requireProfileComplete }) => {
-  const { currentUser } = useAuth() || {};
-  const [profileChecked, setProfileChecked] = useState(false);
-  const navigate = useNavigate();
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  const [profileComplete, setProfileComplete] = useState(false);
 
   useEffect(() => {
     const checkProfile = async () => {
-      if (!requireProfileComplete || !currentUser) {
-        setProfileChecked(true);
-        return;
+      if (user) {
+        const profile = await userService.getUser(user.id);
+        setProfileComplete(!!profile?.gender && !!profile?.preference);
       }
-
-      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-      if (!userDoc.exists() || !userDoc.data().gender || !userDoc.data().preference) {
-        navigate('/profile');
-      }
-      setProfileChecked(true);
     };
-
     checkProfile();
-  }, [currentUser, requireProfileComplete, navigate]);
+  }, [user]);
 
-  if (!currentUser) return <Navigate to="/login" />;
-  if (requireProfileComplete && !profileChecked) return <div>Loading...</div>;
+  if (!user) return <Navigate to="/login" />;
+  if (!profileComplete) return <Navigate to="/profile" />;
   
   return children;
 };

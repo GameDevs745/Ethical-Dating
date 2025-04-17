@@ -1,152 +1,146 @@
-// src/components/SwipePage.js
-import { useNavigate } from 'react-router-dom'; // Add this
 import { useEffect, useState } from 'react';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  getDoc,
-  doc, 
-  setDoc,
-  documentId ,
-  writeBatch,
-  
-} from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
-import { db } from '../firebase';
+import { userService } from '../data/userService';
+import { swipeService } from '../data/swipeService';
 import SwipeCard from './SwipeCard';
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Button, Box } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const SwipePage = () => {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const [profiles, setProfiles] = useState([]);
-    const navigate = useNavigate(); // Add this
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [noMoreProfiles, setNoMoreProfiles] = useState(false);
 
   useEffect(() => {
-    const fetchProfiles = async () => {
+    const loadProfiles = async () => {
       try {
-         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-      if (!userDoc.exists() || !userDoc.data().gender || !userDoc.data().preference) {
-        navigate('/profile');
-        return;
-      }
-        const currentUserRef = doc(db, 'users', currentUser.uid);
-        const currentUserSnap = await getDoc(currentUserRef);
+        setLoading(true);
+        const currentUser = await userService.getUser(user.id);
+        const allUsers = await userService.getAllUsers();
         
-        if (!currentUserSnap.exists()) {
-          setError('User profile not found');
-          return;
-        }
+        // Get already swiped users
+        const swipes = await swipeService.getSwipesByUser(user.id);
+        const swipedIds = swipes.map(swipe => swipeeId);
 
-        const currentUserData = currentUserSnap.data();
-
-        // Get all swipes by current user
-        const swipesSnapshot = await getDocs(
-          query(
-            collection(db, 'swipes'),
-            where('swiper', '==', currentUser.uid)
-          )
+        const filtered = allUsers.filter(u => 
+          u.id !== user.id &&
+          (currentUser.preference === 'both' || u.gender === currentUser.preference) &&
+          !swipedIds.includes(u.id)
         );
-        const swipedUserIds = swipesSnapshot.docs.map(doc => doc.data().swiped);
 
-        // Query compatible profiles
-const q = query(
-  collection(db, 'users'),
-  where('gender', 'in', 
-    currentUserData.preference === 'both' 
-      ? ['male', 'female'] 
-      : [currentUserData.preference]
-  ),
-  where(documentId(), '!=', currentUser.uid)
-);
-
-        const querySnapshot = await getDocs(q);
-        const profilesData = querySnapshot.docs
-          .filter(doc => !swipedUserIds.includes(doc.id))
-          .map(doc => ({ id: doc.id, ...doc.data() }));
-
-        setProfiles(profilesData);
-        setError('');
+        setProfiles(filtered);
+        setNoMoreProfiles(filtered.length === 0);
       } catch (err) {
-        
+        setError('Failed to load profiles');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProfiles();
- }, [currentUser, navigate]);
+    if (user?.id) loadProfiles();
+  }, [user]);
 
   const handleSwipe = async (direction) => {
-  try {
-    // 1. Validate critical data
-    if (!currentUser?.uid || !profiles[currentIndex]?.id) {
-      throw new Error("Invalid user data");
-    }
+    try {
+      if (!profiles[currentIndex]) return;
 
-    const swipedUser = profiles[currentIndex];
-    const batch = writeBatch(db);
-
-    // 2. Create swipe document
-    const swipeRef = doc(db, "swipes", `${currentUser.uid}_${swipedUser.id}`);
-    batch.set(swipeRef, {
-      swiper: currentUser.uid,
-      swiped: swipedUser.id,
-      direction,
-      timestamp: new Date(),
-    });
-
-    // 3. Check for mutual right swipe
-    const theirSwipeRef = doc(db, "swipes", `${swipedUser.id}_${currentUser.uid}`);
-    const theirSwipe = await getDoc(theirSwipeRef);
-
-    if (theirSwipe.exists() && theirSwipe.data().direction === "right") {
-      const matchRef = doc(db, "matches", `${currentUser.uid}_${swipedUser.id}`);
-      batch.set(matchRef, {
-        users: [currentUser.uid, swipedUser.id],
-        timestamp: new Date(),
+      const swipeeId = profiles[currentIndex].id;
+      
+      // Record the swipe
+      await swipeService.addSwipe({
+        id: `${user.id}_${swipeeId}`,
+        swiperId: user.id,
+        swipeeId,
+        direction,
+        timestamp: new Date()
       });
+
+      // Check for match
+      if (direction === 'right') {
+        const isMatch = await swipeService.checkForMatch(user.id, swipeeId);
+        if (isMatch) {
+          alert(`It's a match with ${profiles[currentIndex].name}!`);
+        }
+      }
+
+      // Move to next profile
+      if (currentIndex < profiles.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      } else {
+        setNoMoreProfiles(true);
+      }
+    } catch (err) {
+      setError('Failed to process swipe');
+      console.error('Swipe error:', err);
     }
+  };
 
-    // 4. Commit changes
-    await batch.commit();
-    setCurrentIndex(prev => prev + 1);
-
-  } catch (err) {
-    console.error("SWIPE ERROR DETAILS:", { 
-      error: err,
-      currentUser: currentUser?.uid,
-      swipedUser: profiles[currentIndex]?.id
-    });
-    setError(`Swipe failed: ${err.message}`);
+  if (loading) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Typography>Loading profiles...</Typography>
+      </Container>
+    );
   }
-};
+
+  if (error) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Typography color="error">{error}</Typography>
+      </Container>
+    );
+  }
 
   return (
-    <Container sx={{ py: 4 }}>
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
+    <Container sx={{ py: 4, position: 'relative', minHeight: 500 }}>
+      {noMoreProfiles ? (
+        <Typography variant="h5" align="center">
+          No more profiles to show!
         </Typography>
-      )}
-
-      {profiles.length === 0 && !error && (
-        <Typography>Loading profiles...</Typography>
-      )}
-
-      {currentIndex >= profiles.length && !error && (
-        <Typography>No more profiles to show!</Typography>
-      )}
-
-      {profiles.length > 0 && currentIndex < profiles.length && (
-        <SwipeCard
-          profile={profiles[currentIndex]}
-          onSwipeLeft={() => handleSwipe('left')}
-          onSwipeRight={() => handleSwipe('right')}
-        />
+      ) : (
+        profiles[currentIndex] && (
+          <>
+            <SwipeCard
+              profile={profiles[currentIndex]}
+              onSwipeLeft={() => handleSwipe('left')}
+              onSwipeRight={() => handleSwipe('right')}
+            />
+            
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              gap: 2, 
+              mt: 4 
+            }}>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<CloseIcon />}
+                onClick={() => handleSwipe('left')}
+                sx={{ px: 4, py: 2 }}
+              >
+                Pass
+              </Button>
+              
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<FavoriteIcon />}
+                onClick={() => handleSwipe('right')}
+                sx={{ px: 4, py: 2 }}
+              >
+                Like
+              </Button>
+            </Box>
+          </>
+        )
       )}
     </Container>
   );
 };
+
 export default SwipePage;
