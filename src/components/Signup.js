@@ -1,27 +1,28 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
-import { fakeAuth } from '../data/authService'
+import { useAuth } from '../contexts/AuthContext';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use context login
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (password.length < 6) {
-    setError('Password must be at least 6 characters');
-    return;
-  }
-  try {
-    await fakeAuth.login(email, password); // Use same method for signup
-    navigate('/');
-  } catch (err) {
-    setError('Registration failed');
-  }
-};
+    e.preventDefault();
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    try {
+      await login(email, password); // Use context login method
+      navigate('/');
+    } catch (err) {
+      setError('Registration failed: ' + err.message);
+    }
+  };
 
   return (
     <Container maxWidth="xs">

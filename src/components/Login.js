@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, TextField, Container, Typography, Box } from '@mui/material';
-import { fakeAuth } from '../data/authService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use context login
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    await fakeAuth.login(email, password);
-    navigate('/');
-  } catch (err) {
-    setError('Invalid credentials');
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password); // Use context login method
+      navigate('/');
+    } catch (err) {
+      setError('Invalid credentials: ' + err.message);
+    }
+  };
 
   return (
     <Container maxWidth="xs">
